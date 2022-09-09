@@ -80,3 +80,21 @@ class ImageAlgo:
             stacked_image.save(self.results_path + result_name)
         
         stacked_image.show("Result")
+
+    def swapChannels(self, result_name : str = None) -> None:
+        """
+        Swaps the red and green channel of the input image
+
+        Args:
+            result_name: Saves the generated image with the given name, if the given name is not None. Defaults to None.
+        """
+        swapped_image = self.image_matrix
+        swapped_image[:, :, self.RED_CHANNEL_INDEX], swapped_image[:, :, self.GREEN_CHANNEL_INDEX] = \
+            swapped_image[:, :, self.GREEN_CHANNEL_INDEX], swapped_image[:, :, self.RED_CHANNEL_INDEX]
+
+        swapped_image = Image.fromarray(swapped_image)
+
+        if result_name != None:
+            swapped_image.save(self.results_path + result_name)
+
+        swapped_image.show("After swapping")

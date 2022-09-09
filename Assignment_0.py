@@ -19,3 +19,6 @@ if __name__ == '__main__':
 
     # Problem - 2, Stack the R, G, B channels of the image vertically.
     im.stackImages('2_concat.png')
+
+    # Problem - 3, Load the input color image and swap its red and green color channels.
+    im.swapChannels('3_swapchannel.png')
