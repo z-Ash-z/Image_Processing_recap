@@ -38,14 +38,14 @@ class ImageAlgo:
         green_channel = self.image_matrix[linenumber, :, 2]
 
         x_axis = np.arange(0, self.image_columns)
+
         plt.title(f'RGB plot along scanline {linenumber}')
         plt.plot(x_axis, red_channel, 'r-', label = 'Red Channel')
         plt.plot(x_axis, blue_channel, 'b-', label = 'Blue Channel')
         plt.plot(x_axis, green_channel, 'g-', label = 'Green Channel')
         plt.legend()
+
         if result_name != None:
             plt.savefig(self.results_path + result_name)
-        plt.show()
-
-
-        
+            
+        plt.show()   
