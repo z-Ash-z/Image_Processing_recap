@@ -5,8 +5,8 @@ from matplotlib import pyplot as plt
 class ImageAlgo:
 
     RED_CHANNEL_INDEX = 0
-    BLUE_CHANNEL_INDEX = 1
-    GREEN_CHANNEL_INDEX = 2
+    BLUE_CHANNEL_INDEX = 2
+    GREEN_CHANNEL_INDEX = 1
     CHANNELS = 3
 
     def __init__(self, images_path : str, results_path : str) -> None:
@@ -98,3 +98,9 @@ class ImageAlgo:
             swapped_image.save(self.results_path + result_name)
 
         swapped_image.show("After swapping")
+
+    def convertToGray(self, result_name : str = None) -> None:
+        normalized_image = self.image_matrix // 255
+        gray_image = (normalized_image[:, :, self.RED_CHANNEL_INDEX] * 0.2126 + \
+            normalized_image[:, :, self.GREEN_CHANNEL_INDEX] * 0.7152 + \
+            normalized_image[:, :, self.BLUE_CHANNEL_INDEX] * 0.0722)
