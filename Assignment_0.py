@@ -40,3 +40,6 @@ if __name__ == '__main__':
 
     # Problem - 9, Report the mean R, G, B values for those pixels marked by the mask in (8).
     im.mean_calculator()
+
+    # Problem - 10, For each 5 x 5 window in the grayscale image, find out the maximum value and set the pixels with the maximum value as 255.
+    im.maximumValueWindow('10_nonmax.png')

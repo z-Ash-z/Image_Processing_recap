@@ -15,12 +15,14 @@ class ImageAlgo:
         Constructor of the ImageAlgo.
 
         Args:
-            images_path: The path for the input images.
+            images_path : The path for the input images.
             results_path: The path for the results.
         """
-        self.images_path = images_path
-        self.results_path = results_path
-        os.mkdir(results_path)
+        current_path = os.path.dirname(__name__)
+        self.images_path = os.path.join(current_path, images_path)
+        self.results_path = os.path.join(current_path, results_path)
+        if os.path.exists(self.results_path) != True:
+            os.mkdir(self.results_path)
 
     def readImage(self, image : str):
         """
@@ -44,8 +46,8 @@ class ImageAlgo:
         Plots the RBG channels from the selected scanline in the stored image .
 
         Args:
-            linenumber: The line number to scan and plot. Defaults to 0.
-            result_name: If a result name is given then stores it with given name in the results path. Defaults to None.
+            linenumber  : The line number to scan and plot. Defaults to 0.
+            result_name : If a result name is given then stores it with given name in the results path. Defaults to None.
         """
         red_channel = self.image_matrix[linenumber, :, self.RED_CHANNEL_INDEX]
         blue_channel = self.image_matrix[linenumber, :, self.BLUE_CHANNEL_INDEX]
@@ -163,8 +165,8 @@ class ImageAlgo:
         Crops a 372 x 372 image from the read image, rotates it by 90 degrees 3 times and stacks all the four images horizontally.
 
         Args:
-            result_name: Saves the generated image with the given name, if the given name is not None. Defaults to None.
-            clockwise: If true rotates the crop to clockwise direction. Defaults to False.
+            result_name : Saves the generated image with the given name, if the given name is not None. Defaults to None.
+            clockwise   : If true rotates the crop to clockwise direction. Defaults to False.
         """
         row_center = self.image_rows // 2
         column_center = self.image_columns // 2
@@ -195,8 +197,8 @@ class ImageAlgo:
         When a pixel value is greater than threshold in any of the channels the corresponding value is changed to 255.
 
         Args:
-            result_name: Saves the generated image with the given name, if the given name is not None. Defaults to None.
-            threshold: The value above which the pixel values are changed to 255. Defaults to 127.
+            result_name : Saves the generated image with the given name, if the given name is not None. Defaults to None.
+            threshold   : The value above which the pixel values are changed to 255. Defaults to 127.
         """
         masked_image = np.zeros_like(self.image_matrix, dtype = np.uint8)
 
@@ -238,3 +240,29 @@ class ImageAlgo:
         print(f'Red Channel\t: {round(np.mean(red_values), 4)}')
         print(f'Green Channel\t: {round(np.mean(green_values), 4)}')
         print(f'Blue Channel\t: {round(np.mean(blue_values), 4)}')
+
+    def maximumValueWindow(self, result_name : str = None, window_size = 5) -> None:
+        """
+        Creates a binary image from the grayscaled version of the image. The grayscaled image is converted by finding the maximum value
+        in each window and setting that as 255.
+
+        Args:
+            result_name: Saves the generated image with the given name, if the given name is not None. Defaults to None.
+            window_size: The size of the window in the grayscaled image that you want to find the maximum value from. Defaults to 5.
+        """
+        self.convertToGray()
+        binary_image = np.zeros_like(self.gray_image_matrix, dtype = np.uint8)
+
+        for row in range(self.image_rows - window_size):
+            for column in range(self.image_columns - window_size):
+                window = self.gray_image_matrix[row : row + window_size, column : column + window_size]
+                max_value = np.max(window)
+                max_value_indeces = np.where(window == max_value)
+                binary_image[row : row + window_size, column : column + window_size][max_value_indeces] = 255
+        
+        binary_image = Image.fromarray(binary_image)
+
+        if result_name != None:
+            binary_image.save(self.results_path + result_name)
+
+        binary_image.show()
