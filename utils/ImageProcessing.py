@@ -155,3 +155,35 @@ class ImageAlgo:
             negative_image.save(self.results_path + result_name)
 
         negative_image.show("Negative Image")
+
+    def cropRotateStack(self, result_name : str = None, clockwise : bool = False) -> None:
+        """
+        Crops a 372 x 372 image from the read image, rotates it by 90 degrees 3 times and stacks all the four images horizontally.
+
+        Args:
+            result_name: Saves the generated image with the given name, if the given name is not None. Defaults to None.
+            clockwise: If true rotates the crop to clockwise direction. Defaults to False.
+        """
+        row_center = self.image_rows // 2
+        column_center = self.image_columns // 2
+        crop_size = 372
+
+        cropped_image = np.zeros((crop_size, crop_size, self.CHANNELS), dtype = np.uint8)
+        stacked_image = np.zeros((crop_size, crop_size * 4, self.CHANNELS), dtype = np.uint8)
+        
+        cropped_image = self.image_matrix[row_center : row_center + crop_size, column_center : column_center + crop_size, :]
+        
+        rotate_direction = (0, 1)
+        if clockwise:
+            rotate_direction = (1, 0)
+
+        for i in range(4):
+            stacked_image[:, crop_size * i : crop_size * (i + 1), :] = cropped_image
+            cropped_image = np.rot90(cropped_image, axes = rotate_direction)
+
+        stacked_image = Image.fromarray(stacked_image)
+
+        if result_name != None:
+            stacked_image.save(self.results_path + result_name)
+
+        stacked_image.show()

@@ -31,3 +31,6 @@ if __name__ == '__main__':
 
     # Problem - 6, Take the grayscale image in (4), obtain the negative image
     im.negativeImage('6_negative.png')
+
+    # Problem - 7, First, crop the original image into a squared image then, rotate the image by 90, 180, and 270 degrees and stack the four images.
+    im.cropRotateStack('7_rotation.png')
