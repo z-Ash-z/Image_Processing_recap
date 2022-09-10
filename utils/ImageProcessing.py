@@ -110,10 +110,31 @@ class ImageAlgo:
         gray_image = self.image_matrix[:, :, self.RED_CHANNEL_INDEX] * 0.2126 + \
             self.image_matrix[:, :, self.GREEN_CHANNEL_INDEX] * 0.7152 + \
             self.image_matrix[:, :, self.BLUE_CHANNEL_INDEX] * 0.0722
+        gray_image = np.uint8(gray_image)
 
-        gray_image = Image.fromarray(np.uint8(gray_image))
+        gray_image = Image.fromarray(gray_image)
 
         if result_name != None:
             gray_image.save(self.results_path + result_name)
 
         gray_image.show("Gray Image")
+
+    def channelAverage(self, result_name : str = None) -> None:
+        """
+        Averages the three channels to a single channel.
+
+        Args:
+            result_name: Saves the generated image with the given name, if the given name is not None. Defaults to None.
+        """
+        channel_average_image = np.zeros_like((self.image_rows, self.image_columns), dtype = np.uint8)
+        channel_average_image = (self.image_matrix[:, :, self.RED_CHANNEL_INDEX] + \
+            self.image_matrix[:, :, self.GREEN_CHANNEL_INDEX] + \
+            self.image_matrix[:, :, self.BLUE_CHANNEL_INDEX]) / 3
+        channel_average_image = np.uint8(channel_average_image)
+
+        channel_average_image = Image.fromarray(channel_average_image)
+
+        if result_name != None:
+            channel_average_image.save(self.results_path + result_name)
+
+        channel_average_image.show("Channel Average")

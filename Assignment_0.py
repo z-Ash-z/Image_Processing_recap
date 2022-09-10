@@ -25,3 +25,6 @@ if __name__ == '__main__':
 
     # Problem - 4, Convert the input color image to a grayscale image.
     im.convertToGray('4_grayscale.png')
+
+    # Problem - 5, Take the R, G, B channels of the image. Compute an average over the three channels.
+    im.channelAverage('5_average.png')
