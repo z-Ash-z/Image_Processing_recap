@@ -22,3 +22,6 @@ if __name__ == '__main__':
 
     # Problem - 3, Load the input color image and swap its red and green color channels.
     im.swapChannels('3_swapchannel.png')
+
+    # Problem - 4, Convert the input color image to a grayscale image.
+    im.convertToGray('4_grayscale.png')

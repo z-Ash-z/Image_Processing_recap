@@ -100,7 +100,20 @@ class ImageAlgo:
         swapped_image.show("After swapping")
 
     def convertToGray(self, result_name : str = None) -> None:
-        normalized_image = self.image_matrix // 255
-        gray_image = (normalized_image[:, :, self.RED_CHANNEL_INDEX] * 0.2126 + \
-            normalized_image[:, :, self.GREEN_CHANNEL_INDEX] * 0.7152 + \
-            normalized_image[:, :, self.BLUE_CHANNEL_INDEX] * 0.0722)
+        """
+        Converts the given image to grayscale. Reference for math: https://en.wikipedia.org/wiki/Grayscale#Converting_color_to_grayscale
+
+        Args:
+            result_name: Saves the generated image with the given name, if the given name is not None. Defaults to None.
+        """
+        gray_image = np.zeros_like((self.image_rows, self.image_columns), dtype = np.uint8)
+        gray_image = self.image_matrix[:, :, self.RED_CHANNEL_INDEX] * 0.2126 + \
+            self.image_matrix[:, :, self.GREEN_CHANNEL_INDEX] * 0.7152 + \
+            self.image_matrix[:, :, self.BLUE_CHANNEL_INDEX] * 0.0722
+
+        gray_image = Image.fromarray(np.uint8(gray_image))
+
+        if result_name != None:
+            gray_image.save(self.results_path + result_name)
+
+        gray_image.show("Gray Image")
