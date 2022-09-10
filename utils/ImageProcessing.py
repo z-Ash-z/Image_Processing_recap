@@ -187,3 +187,25 @@ class ImageAlgo:
             stacked_image.save(self.results_path + result_name)
 
         stacked_image.show()
+
+    def masking(self, result_name : str = None, threshold : int = 127) -> None:
+        """
+        When a pixel value is greater than threshold in any of the channels the corresponding value is changed to 255.
+
+        Args:
+            result_name: Saves the generated image with the given name, if the given name is not None. Defaults to None.
+            threshold: The value above which the pixel values are changed to 255. Defaults to 127.
+        """
+        masked_image = np.zeros_like(self.image_matrix, dtype = np.uint8)
+
+        self.mask_locations = np.where(self.image_matrix > threshold)
+        masked_image[:, :, self.RED_CHANNEL_INDEX] = np.where(self.image_matrix[:, :, self.RED_CHANNEL_INDEX] > threshold, 255, self.image_matrix[:, :, self.RED_CHANNEL_INDEX])
+        masked_image[:, :, self.GREEN_CHANNEL_INDEX] = np.where(self.image_matrix[:, :, self.GREEN_CHANNEL_INDEX] > threshold, 255, self.image_matrix[:, :, self.GREEN_CHANNEL_INDEX])
+        masked_image[:, :, self.BLUE_CHANNEL_INDEX] = np.where(self.image_matrix[:, :, self.BLUE_CHANNEL_INDEX] > threshold, 255, self.image_matrix[:, :, self.BLUE_CHANNEL_INDEX])
+
+        masked_image = Image.fromarray(masked_image)
+
+        if result_name != None:
+            masked_image.save(self.results_path + result_name)
+
+        masked_image.show()
