@@ -1,3 +1,4 @@
+import os
 import numpy as np
 from PIL import Image
 from matplotlib import pyplot as plt
@@ -19,6 +20,7 @@ class ImageAlgo:
         """
         self.images_path = images_path
         self.results_path = results_path
+        os.mkdir(results_path)
 
     def readImage(self, image : str):
         """
