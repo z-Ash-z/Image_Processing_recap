@@ -110,9 +110,9 @@ class ImageAlgo:
         gray_image = self.image_matrix[:, :, self.RED_CHANNEL_INDEX] * 0.2126 + \
             self.image_matrix[:, :, self.GREEN_CHANNEL_INDEX] * 0.7152 + \
             self.image_matrix[:, :, self.BLUE_CHANNEL_INDEX] * 0.0722
-        gray_image = np.uint8(gray_image)
+        self.gray_image_matrix = np.uint8(gray_image)
 
-        gray_image = Image.fromarray(gray_image)
+        gray_image = Image.fromarray(self.gray_image_matrix)
 
         if result_name != None:
             gray_image.save(self.results_path + result_name)
@@ -138,3 +138,20 @@ class ImageAlgo:
             channel_average_image.save(self.results_path + result_name)
 
         channel_average_image.show("Channel Average")
+
+    def negativeImage(self, result_name : str = None) -> None:
+        """
+        Creates the negative of the grayscaled image
+
+        Args:
+            result_name: Saves the generated image with the given name, if the given name is not None. Defaults to None.
+        """
+        self.convertToGray()
+        negative_image = 255 - self.gray_image_matrix
+
+        negative_image = Image.fromarray(negative_image)
+
+        if result_name != None:
+            negative_image.save(self.results_path + result_name)
+
+        negative_image.show("Negative Image")

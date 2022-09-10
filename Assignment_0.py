@@ -28,3 +28,6 @@ if __name__ == '__main__':
 
     # Problem - 5, Take the R, G, B channels of the image. Compute an average over the three channels.
     im.channelAverage('5_average.png')
+
+    # Problem - 6, Take the grayscale image in (4), obtain the negative image
+    im.negativeImage('6_negative.png')
