@@ -209,3 +209,30 @@ class ImageAlgo:
             masked_image.save(self.results_path + result_name)
 
         masked_image.show()
+
+    def mean_calculator(self, threshold : int = 127) -> None:
+        """
+        The mean of the pixel values that are above the threshold.
+        The mean is calculated for each channel seperately.
+
+        Args:
+            threshold: The value above which the pixel values are changed to 255. Defaults to 127.
+        """
+        self.masking(threshold = threshold)
+
+        red_values = []
+        green_values = []
+        blue_values = []
+
+        for i in range(len(self.mask_locations[0])):
+            if self.mask_locations[2][i] == self.RED_CHANNEL_INDEX:
+                red_values.append(self.image_matrix[self.mask_locations[0][i], self.mask_locations[1][i], self.mask_locations[2][i]])
+            if self.mask_locations[2][i] == self.GREEN_CHANNEL_INDEX:
+                green_values.append(self.image_matrix[self.mask_locations[0][i], self.mask_locations[1][i], self.mask_locations[2][i]])
+            if self.mask_locations[2][i] == self.BLUE_CHANNEL_INDEX:
+                blue_values.append(self.image_matrix[self.mask_locations[0][i], self.mask_locations[1][i], self.mask_locations[2][i]])
+
+        print(f'The mean values in the mask:-')
+        print(f'Red Channel\t: {round(np.mean(red_values), 4)}')
+        print(f'Green Channel\t: {round(np.mean(green_values), 4)}')
+        print(f'Blue Channel\t: {round(np.mean(blue_values), 4)}')

@@ -37,3 +37,6 @@ if __name__ == '__main__':
 
     # Problem - 8, Mask
     im.masking('8_mask.png')
+
+    # Problem - 9, Report the mean R, G, B values for those pixels marked by the mask in (8).
+    im.mean_calculator()
