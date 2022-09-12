@@ -1,4 +1,5 @@
 import os
+import copy
 import numpy as np
 from PIL import Image
 from matplotlib import pyplot as plt
@@ -8,21 +9,22 @@ class ImageAlgo:
     RED_CHANNEL_INDEX = 0
     BLUE_CHANNEL_INDEX = 2
     GREEN_CHANNEL_INDEX = 1
-    CHANNELS = 3
 
-    def __init__(self, images_path : str, results_path : str) -> None:
+    def __init__(self, images_path : str, results_path : str, display : bool = False) -> None:
         """
         Constructor of the ImageAlgo.
 
         Args:
             images_path : The path for the input images.
             results_path: The path for the results.
+            display     : Sets the flag to display the results, display if true. Defaults to False 
         """
         current_path = os.path.dirname(__name__)
         self.images_path = os.path.join(current_path, images_path)
         self.results_path = os.path.join(current_path, results_path)
         if os.path.exists(self.results_path) != True:
             os.mkdir(self.results_path)
+        self.display = display
 
     def readImage(self, image : str):
         """
@@ -33,7 +35,7 @@ class ImageAlgo:
         """
         self.image = Image.open(self.images_path + image)
         self.image_matrix = np.array(self.image, dtype = np.uint8)
-        self.image_rows, self.image_columns, _ = self.image_matrix.shape
+        self.image_rows, self.image_columns, self.channels = self.image_matrix.shape
 
     def showImage(self, window_name : str = "Stored Image"):
         """
@@ -41,17 +43,18 @@ class ImageAlgo:
         """
         self.image.show(window_name)
 
-    def plotScanLine(self, linenumber : int = 0, result_name : str = None) -> None:
+    def plotScanLine(self, linenumber : int = 0, result_name : str = None, show_image : bool = False) -> None:
         """
         Plots the RBG channels from the selected scanline in the stored image .
 
         Args:
             linenumber  : The line number to scan and plot. Defaults to 0.
             result_name : If a result name is given then stores it with given name in the results path. Defaults to None.
+            show_image  : If set to True, shows the image in a window after computing. Defaults to False.
         """
-        red_channel = self.image_matrix[linenumber, :, self.RED_CHANNEL_INDEX]
-        blue_channel = self.image_matrix[linenumber, :, self.BLUE_CHANNEL_INDEX]
-        green_channel = self.image_matrix[linenumber, :, self.GREEN_CHANNEL_INDEX]
+        red_channel = copy.deepcopy(self.image_matrix[linenumber, :, self.RED_CHANNEL_INDEX])
+        blue_channel = copy.deepcopy(self.image_matrix[linenumber, :, self.BLUE_CHANNEL_INDEX])
+        green_channel = copy.deepcopy(self.image_matrix[linenumber, :, self.GREEN_CHANNEL_INDEX])
 
         x_axis = np.arange(0, self.image_columns)
 
@@ -64,35 +67,46 @@ class ImageAlgo:
         if result_name != None:
             plt.savefig(self.results_path + result_name)
 
-        plt.show()
+        if show_image or self.display:
+            plt.show()
 
-    def stackImages(self, result_name : str = None) -> None:
+    def stackImages(self, result_name : str = None, color : bool = True, show_image : bool = False) -> None:
         """
         Stacks the red, blue and green channels vertically into a single image
 
         Args:
-            result_name: Saves the generated image with the given name, if the given name is not None. Defaults to None.
+            result_name : Saves the generated image with the given name, if the given name is not None. Defaults to None.
+            color       : When True stacks the images with color else in grayscale. Defaults to True.
+            show_image  : If set to True, shows the image in a window after computing. Defaults to False.
         """
-        new_image = np.zeros((3*self.image_rows, self.image_columns, self.CHANNELS), dtype = np.uint8) 
+        if color:
+            new_image = np.zeros((3*self.image_rows, self.image_columns, self.channels), dtype = np.uint8) 
 
-        for i in range(self.CHANNELS):
-            new_image[(self.image_rows * i) : (self.image_rows * (i + 1)), :, i] = self.image_matrix[:, :, i]
+            for i in range(self.channels):
+                new_image[(self.image_rows * i) : (self.image_rows * (i + 1)), :, i] = copy.deepcopy(self.image_matrix[:, :, i])
+        else:
+            new_image = np.zeros((3*self.image_rows, self.image_columns), dtype = np.uint8) 
+
+            for i in range(self.channels):
+                new_image[(self.image_rows * i) : (self.image_rows * (i + 1)), :] = copy.deepcopy(self.image_matrix[:, :, i])
 
         stacked_image = Image.fromarray(new_image)
         
         if result_name != None:
             stacked_image.save(self.results_path + result_name)
         
-        stacked_image.show("Result")
+        if show_image or self.display:
+            stacked_image.show("Result")
 
-    def swapChannels(self, result_name : str = None) -> None:
+    def swapChannels(self, result_name : str = None, show_image : bool = False) -> None:
         """
         Swaps the red and green channel of the input image
 
         Args:
-            result_name: Saves the generated image with the given name, if the given name is not None. Defaults to None.
+            result_name : Saves the generated image with the given name, if the given name is not None. Defaults to None.
+            show_image  : If set to True, shows the image in a window after computing. Defaults to False.
         """
-        swapped_image = self.image_matrix
+        swapped_image = copy.deepcopy(self.image_matrix)
         swapped_image[:, :, self.RED_CHANNEL_INDEX], swapped_image[:, :, self.GREEN_CHANNEL_INDEX] = \
             swapped_image[:, :, self.GREEN_CHANNEL_INDEX], swapped_image[:, :, self.RED_CHANNEL_INDEX]
 
@@ -101,14 +115,16 @@ class ImageAlgo:
         if result_name != None:
             swapped_image.save(self.results_path + result_name)
 
-        swapped_image.show("After swapping")
+        if show_image or self.display:
+            swapped_image.show("After swapping")
 
-    def convertToGray(self, result_name : str = None) -> None:
+    def convertToGray(self, result_name : str = None, show_image : bool = False) -> None:
         """
         Converts the given image to grayscale. Reference for math: https://en.wikipedia.org/wiki/Grayscale#Converting_color_to_grayscale
 
         Args:
-            result_name: Saves the generated image with the given name, if the given name is not None. Defaults to None.
+            result_name : Saves the generated image with the given name, if the given name is not None. Defaults to None.
+            show_image  : If set to True, shows the image in a window after computing. Defaults to False.
         """
         gray_image = np.zeros_like((self.image_rows, self.image_columns), dtype = np.uint8)
         gray_image = self.image_matrix[:, :, self.RED_CHANNEL_INDEX] * 0.2126 + \
@@ -121,14 +137,16 @@ class ImageAlgo:
         if result_name != None:
             gray_image.save(self.results_path + result_name)
 
-        gray_image.show("Gray Image")
+        if show_image or self.display:
+            gray_image.show("Gray Image")
 
-    def channelAverage(self, result_name : str = None) -> None:
+    def channelAverage(self, result_name : str = None, show_image : bool = False) -> None:
         """
         Averages the three channels to a single channel.
 
         Args:
-            result_name: Saves the generated image with the given name, if the given name is not None. Defaults to None.
+            result_name : Saves the generated image with the given name, if the given name is not None. Defaults to None.
+            show_image  : If set to True, shows the image in a window after computing. Defaults to False.
         """
         channel_average_image = np.zeros_like((self.image_rows, self.image_columns), dtype = np.uint8)
         channel_average_image = (self.image_matrix[:, :, self.RED_CHANNEL_INDEX] + \
@@ -141,41 +159,45 @@ class ImageAlgo:
         if result_name != None:
             channel_average_image.save(self.results_path + result_name)
 
-        channel_average_image.show("Channel Average")
+        if show_image or self.display:
+            channel_average_image.show("Channel Average")
 
-    def negativeImage(self, result_name : str = None) -> None:
+    def negativeImage(self, result_name : str = None, show_image : bool = False) -> None:
         """
         Creates the negative of the grayscaled image
 
         Args:
-            result_name: Saves the generated image with the given name, if the given name is not None. Defaults to None.
+            result_name : Saves the generated image with the given name, if the given name is not None. Defaults to None.
+            show_image  : If set to True, shows the image in a window after computing. Defaults to False.
         """
         self.convertToGray()
-        negative_image = 255 - self.gray_image_matrix
+        negative_image = 255 - copy.deepcopy(self.gray_image_matrix)
 
         negative_image = Image.fromarray(negative_image)
 
         if result_name != None:
             negative_image.save(self.results_path + result_name)
 
-        negative_image.show("Negative Image")
+        if show_image or self.display:
+            negative_image.show("Negative Image")
 
-    def cropRotateStack(self, result_name : str = None, clockwise : bool = False) -> None:
+    def cropRotateStack(self, result_name : str = None, clockwise : bool = False, show_image : bool = False) -> None:
         """
         Crops a 372 x 372 image from the read image, rotates it by 90 degrees 3 times and stacks all the four images horizontally.
 
         Args:
             result_name : Saves the generated image with the given name, if the given name is not None. Defaults to None.
             clockwise   : If true rotates the crop to clockwise direction. Defaults to False.
+            show_image  : If set to True, shows the image in a window after computing. Defaults to False.
         """
         row_center = self.image_rows // 2
         column_center = self.image_columns // 2
         crop_size = 372
 
-        cropped_image = np.zeros((crop_size, crop_size, self.CHANNELS), dtype = np.uint8)
-        stacked_image = np.zeros((crop_size, crop_size * 4, self.CHANNELS), dtype = np.uint8)
+        cropped_image = np.zeros((crop_size, crop_size, self.channels), dtype = np.uint8)
+        stacked_image = np.zeros((crop_size, crop_size * 4, self.channels), dtype = np.uint8)
         
-        cropped_image = self.image_matrix[row_center : row_center + crop_size, column_center : column_center + crop_size, :]
+        cropped_image = copy.deepcopy(self.image_matrix[row_center : row_center + crop_size, column_center : column_center + crop_size, :])
         
         rotate_direction = (0, 1)
         if clockwise:
@@ -190,15 +212,17 @@ class ImageAlgo:
         if result_name != None:
             stacked_image.save(self.results_path + result_name)
 
-        stacked_image.show()
+        if show_image or self.display:
+            stacked_image.show()
 
-    def masking(self, result_name : str = None, threshold : int = 127) -> None:
+    def masking(self, result_name : str = None, threshold : int = 127, show_image : bool = False) -> None:
         """
         When a pixel value is greater than threshold in any of the channels the corresponding value is changed to 255.
 
         Args:
             result_name : Saves the generated image with the given name, if the given name is not None. Defaults to None.
             threshold   : The value above which the pixel values are changed to 255. Defaults to 127.
+            show_image  : If set to True, shows the image in a window after computing. Defaults to False.
         """
         masked_image = np.zeros_like(self.image_matrix, dtype = np.uint8)
 
@@ -212,7 +236,8 @@ class ImageAlgo:
         if result_name != None:
             masked_image.save(self.results_path + result_name)
 
-        masked_image.show()
+        if show_image or self.display:
+            masked_image.show()
 
     def mean_calculator(self, threshold : int = 127) -> None:
         """
@@ -241,7 +266,7 @@ class ImageAlgo:
         print(f'Green Channel\t: {round(np.mean(green_values), 4)}')
         print(f'Blue Channel\t: {round(np.mean(blue_values), 4)}')
 
-    def maximumValueWindow(self, result_name : str = None, window_size = 5) -> None:
+    def maximumValueWindow(self, result_name : str = None, window_size = 5, show_image : bool = False) -> None:
         """
         Creates a binary image from the grayscaled version of the image. The grayscaled image is converted by finding the maximum value
         in each window and setting that as 255.
@@ -249,6 +274,7 @@ class ImageAlgo:
         Args:
             result_name: Saves the generated image with the given name, if the given name is not None. Defaults to None.
             window_size: The size of the window in the grayscaled image that you want to find the maximum value from. Defaults to 5.
+            show_image  : If set to True, shows the image in a window after computing. Defaults to False.
         """
         self.convertToGray()
         binary_image = np.zeros_like(self.gray_image_matrix, dtype = np.uint8)
@@ -265,4 +291,5 @@ class ImageAlgo:
         if result_name != None:
             binary_image.save(self.results_path + result_name)
 
-        binary_image.show()
+        if show_image or self.display:
+            binary_image.show()

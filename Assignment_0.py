@@ -18,7 +18,7 @@ if __name__ == '__main__':
     im.plotScanLine(250, '1_scanline.png')
 
     # Problem - 2, Stack the R, G, B channels of the image vertically.
-    im.stackImages('2_concat.png')
+    im.stackImages('2_concat.png', color = False)
 
     # Problem - 3, Load the input color image and swap its red and green color channels.
     im.swapChannels('3_swapchannel.png')
@@ -42,4 +42,4 @@ if __name__ == '__main__':
     im.mean_calculator()
 
     # Problem - 10, For each 5 x 5 window in the grayscale image, find out the maximum value and set the pixels with the maximum value as 255.
-    im.maximumValueWindow('10_nonmax.png')
+    im.maximumValueWindow('10_nonmax.png', show_image = True)
