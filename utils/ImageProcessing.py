@@ -25,6 +25,8 @@ class ImageAlgo:
         if os.path.exists(self.results_path) != True:
             os.mkdir(self.results_path)
         self.display = display
+        self.mask_locations_flag = False
+        self.gray_image_flag = False
 
     def readImage(self, image : str):
         """
@@ -140,6 +142,8 @@ class ImageAlgo:
         if show_image or self.display:
             gray_image.show("Gray Image")
 
+        self.gray_image_flag = True
+
     def channelAverage(self, result_name : str = None, show_image : bool = False) -> None:
         """
         Averages the three channels to a single channel.
@@ -170,7 +174,8 @@ class ImageAlgo:
             result_name : Saves the generated image with the given name, if the given name is not None. Defaults to None.
             show_image  : If set to True, shows the image in a window after computing. Defaults to False.
         """
-        self.convertToGray()
+        if not self.gray_image_flag:
+            self.convertToGray()
         negative_image = 255 - copy.deepcopy(self.gray_image_matrix)
 
         negative_image = Image.fromarray(negative_image)
@@ -227,10 +232,8 @@ class ImageAlgo:
         masked_image = np.zeros_like(self.image_matrix, dtype = np.uint8)
 
         self.mask_locations = np.where(self.image_matrix > threshold)
-        masked_image[:, :, self.RED_CHANNEL_INDEX] = np.where(self.image_matrix[:, :, self.RED_CHANNEL_INDEX] > threshold, 255, self.image_matrix[:, :, self.RED_CHANNEL_INDEX])
-        masked_image[:, :, self.GREEN_CHANNEL_INDEX] = np.where(self.image_matrix[:, :, self.GREEN_CHANNEL_INDEX] > threshold, 255, self.image_matrix[:, :, self.GREEN_CHANNEL_INDEX])
-        masked_image[:, :, self.BLUE_CHANNEL_INDEX] = np.where(self.image_matrix[:, :, self.BLUE_CHANNEL_INDEX] > threshold, 255, self.image_matrix[:, :, self.BLUE_CHANNEL_INDEX])
-
+        masked_image[self.mask_locations] = 255
+        
         masked_image = Image.fromarray(masked_image)
 
         if result_name != None:
@@ -238,6 +241,8 @@ class ImageAlgo:
 
         if show_image or self.display:
             masked_image.show()
+        
+        self.mask_locations_flag = True
 
     def mean_calculator(self, threshold : int = 127) -> None:
         """
@@ -247,7 +252,8 @@ class ImageAlgo:
         Args:
             threshold: The value above which the pixel values are changed to 255. Defaults to 127.
         """
-        self.masking(threshold = threshold)
+        if not self.mask_locations_flag:
+            self.masking(threshold = threshold)
 
         red_values = []
         green_values = []
@@ -276,7 +282,8 @@ class ImageAlgo:
             window_size: The size of the window in the grayscaled image that you want to find the maximum value from. Defaults to 5.
             show_image  : If set to True, shows the image in a window after computing. Defaults to False.
         """
-        self.convertToGray()
+        if not self.gray_image_flag:
+            self.convertToGray()
         binary_image = np.zeros_like(self.gray_image_matrix, dtype = np.uint8)
 
         for row in range(self.image_rows - window_size):
