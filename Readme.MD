@@ -32,7 +32,7 @@ Run `Assignment_0.py` for solving the following problem statements.
     - Save the result image as “10_nonmax.png”.
 
 ### The image used is:
-![Iribe](source\iribefront.jpg)
+![Iribe](source/iribefront.jpg)
 
 ---
 
